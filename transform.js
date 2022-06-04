@@ -1,60 +1,55 @@
-//read a file into into memory, and get each line to perform an operation on it
-//input comes from a file, output goes to a file
+import {unified} from 'unified';
+import {toJson} from './toJson.js';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
+import {toVFile} from 'to-vfile';
+import matter from 'gray-matter';
 import fs from 'fs';
-import readline from 'readline';
 
 
-let result = {};
 
-class Data {
-  constructor(title, date, description, content, socials) {
-    this.title = title;
-    this.date = date;
-    this.description = description;
-    this.content = content;
-    this.socials = socials;
-  }
+/**
+	* @param {String} dest - path to json file to write to
+	* @param {String} post - path to markdown file to read from
+*/
+export function transformMdtoHtmltoJson(dest, post) {
+	
+	const file = matter.read(post);
+	
+	const title = file.data.title;
+	const date = file.data.date;
+	const description = file.data.description;
+	const socials = file.data.socials;
+	
+	unified()
+		.use(remarkParse)
+		.use(remarkRehype)
+		.use(rehypeStringify)
+		.process(file.content)
+		.then(
+			(result) => {
+				toJson(dest, title, date, description, result.value, socials);
+			},
+			(err) => {
+				throw err;
+			}
+	      );
 }
 
-function createNewMember(title, data, description, content, socials) {
-	let newMemer = new Data();
-	newMemer.title = title;
-	newMemer.date = data;
-	newMemer.description = description;
-	newMemer.content = content;
-	newMemer.socials = socials;
-	return result = {
-		"title": newMemer.title,
-		"date": newMemer.date,
-		"description": newMemer.description,
-		"content": newMemer.content,
-		"socials": newMemer.socials
-	}
-}
 
-export async function transform(inFile, title, data, description, content, socials) {
-  const rl = readline.createInterface({
-    input: fs.createReadStream(inFile),
-    crlfDelay: Infinity,
-  });
 
-  const lines = [];
-  for await (const line of rl) {
-    lines.push(line);
-  }
-  let output = lines.slice(1, lines.length - 1);
-  output.push(createNewMember(title, data, description, content, socials));
-  writeFile(inFile, JSON.stringify(output));
 
-}
 
-async function writeFile(fileName, data) {
-	  fs.writeFile(fileName, data, (err) => {
-		  	    if (err) throw err;
-		  	    console.log("The file has been saved!");
-		  	  }
-		  	  );
-}
+
+
+
+
+
+
+
+
+
 
 
 
