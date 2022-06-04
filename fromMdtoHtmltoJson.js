@@ -7,8 +7,15 @@ import {toVFile} from 'to-vfile';
 import matter from 'gray-matter';
 import fs from 'fs';
 
-const file = matter.read('test.md');
+const file = matter.read('index.md');
 console.log(file.content)
+
+const inFile = ('test.json')
+
+const title = file.data.title;
+const date = file.data.date;
+const description = file.data.description;
+const socials = file.data.socials;
 
 unified()
   .use(remarkParse)
@@ -17,11 +24,7 @@ unified()
   .process(file.content)
   .then(
 	      (result) => {
-		fs.writeFile("test.html", result.value, (err) => {
-			if (err) throw err;
-			console.log("The file has been saved!");
-		}
-		);
+		transform(inFile, title, date, description, result.value, socials);
       },
 	      (err) => {
 		      throw err;

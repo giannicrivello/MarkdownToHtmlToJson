@@ -32,9 +32,9 @@ function createNewMember(title, data, description, content, socials) {
 	}
 }
 
-export async function transform(fileName, title, data, description, content, socials) {
+export async function transform(inFile, title, data, description, content, socials) {
   const rl = readline.createInterface({
-    input: fs.createReadStream(fileName),
+    input: fs.createReadStream(inFile),
     crlfDelay: Infinity,
   });
 
@@ -44,7 +44,7 @@ export async function transform(fileName, title, data, description, content, soc
   }
   let output = lines.slice(1, lines.length - 1);
   output.push(createNewMember(title, data, description, content, socials));
-  writeFile(fileName, JSON.stringify(output));
+  writeFile(inFile, JSON.stringify(output));
 
 }
 
