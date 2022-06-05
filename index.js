@@ -1,21 +1,35 @@
 import path from 'path';
 import fs from 'fs';
-import {transformMdtoHtmltoJson} from './lib/transform.js';
+import {transform} from './lib/transform.js';
 
 const postDir = path.join(process.cwd(), 'posts');
 const destDir = path.join(process.cwd(), '_data');
 const jsonFile = 'post.json';
 
-const fileNames = fs.readdirSync(postDir);
+	//writeFile(destPath, JSON.stringify(posts, null, 2));
 
-async function generatePosts(fileNames, postDir, destDir, jsonFile) {
-	  fileNames.forEach( (fileName) => {
-			const fullPath = path.join(postDir, fileName);
-			const destPath = path.join(destDir, jsonFile)
-			transformMdtoHtmltoJson(destPath, fullPath);
-		});
+async function generatePosts(postDir) {
+  const fileNames = fs.readdirSync(postDir);
+  console.log(fileNames);
+
+  let posts = [];
+
+    for await (const file of fileNames) {
+    const fullPath = path.join(postDir, file);
+    transform(fullPath).then((json) => {
+	   posts.push(json); 
+    });
+    }
+	const destPath = path.join(destDir, jsonFile);
+
+	writeFile(destPath, JSON.stringify(posts, null, 2));
 }
 
-
-generatePosts(fileNames, postDir, destDir, jsonFile);
-
+function writeFile(inFile, data) {
+  fs.writeFile(inFile, data, (err) => {
+    if (err) throw err;
+      console.log("The file has been saved!");
+    }
+  );
+}
+generatePosts(postDir)
